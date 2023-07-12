@@ -1,3 +1,7 @@
 const { danger } = require("danger");
 
-console.log(danger.github.pr.title());
+console.warn(`sample: ${danger.github.pr.title}`);
+
+message(danger.github.pr.title);
+warn(danger.github.pr.title);
+fail(danger.github.pr.title);
