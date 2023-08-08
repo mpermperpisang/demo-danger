@@ -1,28 +1,37 @@
 const { danger } = require("danger");
 
-async function a() {
-  const d = {};
+function qaListByUsername(userList) {
+  const payloadC = (user) => ({
+    username: user,
+  });
+
+  return danger.github.api.users.getByUsername(
+    payloadC(userList),
+  ).then((result) => result.data.name);
+}
+
+async function qaListByTeam(qeSlug) {
+  const qaList = {};
   const payloadB = (slug) => ({
     org: 'pt-kompas-media-nusantara',
+    // eslint-disable-next-line camelcase
     team_slug: slug,
-  })
-  const payloadC = (username) => ({
-    username
-  })
+  });
 
-  const a = await danger.github.api.teams.listMembersInOrg(payloadB('quality-engineer')).then(result => result.data);
+  const membersList = await danger.github.api.teams.listMembersInOrg(
+    payloadB(qeSlug),
+  ).then((result) => result.data);
 
-  for (i = 0; i < a.length; ++i) {
-    const b = await danger.github.api.users.getByUsername(
-      payloadC(a[i].login)
-    ).then(result => result.data.name)
+  for (let index = 0; index < membersList.length - 1; index += 1) {
+    const userLogin = membersList[index].login;
+    const getFullName = qaListByUsername(userLogin);
 
-    if ((b !== null) && (a[i].login !== 'qeomid-ide')) {
-      d[a[i].login] = b;
+    if ((getFullName !== null) && (userLogin !== 'qeomid-ide')) {
+      qaList[userLogin] = { username: userLogin, fullname: getFullName };
     }
   }
 
-  console.log(d.mpermperpisang)
+  return qaList
 }
 
-a()
+qaListByTeam('qe-development');
